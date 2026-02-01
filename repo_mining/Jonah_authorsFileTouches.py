@@ -45,6 +45,8 @@ def get_commits(filename, lsttokens, repo, ct):
 
     return [], ct
 
+print("BE SURE TO RUN Jonah_CollectFiles.py FIRST!!!")
+
 lstTokens = []
 
 repo = 'scottyab/rootbeer'
