@@ -118,13 +118,17 @@ def test_positive_deposit():
 
     account = Account(name="Gorilla Sushi", email="gorillasushi@gmail.com", role="user", balance = 0)
     
-    # Depositing small positive amount increases balance accordingly.
+    # Depositing small positive integer increases balance accordingly.
     account.deposit(1)
     assert account.balance == 1
 
-    # Depositing large positive amount increases balance accordingly.
+    # Depositing large positive integer increases balance accordingly.
     account.deposit(2 ** 32)
     assert account.balance == (2 ** 32) + 1
+
+    # Depositing float increases balance accordingly.
+    account.deposit(1.982)
+    assert account.balance == (2 ** 32) + 1 + 1.982
     
 
 # Student 5: Test deposit with zero/negative values
