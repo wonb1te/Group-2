@@ -124,10 +124,33 @@ Each test should include:
 # - Ensure withdrawal fails when balance is insufficient.
 # Target Method: withdraw()
 
+# ===========================
+# Test: Password Hashing
+# Author: Nathan Dela Pena
+# Date: 2026-02-16
+# Description: Test password hashing
+# ===========================
+
 # Student 8: Test password hashing
 # - Ensure passwords are properly hashed.
 # - Verify that password verification works correctly.
 # Target Methods: set_password() / check_password()
+def test_password_hashing(setup_account):
+    account = setup_account
+
+    # set a password
+    account.set_password("Testing123!")
+
+    # esure the password is not stored as a string
+    assert account.password_hash != "Testing123!"
+    assert account.password_hash is not None
+
+    # verify the password
+    assert account.check_password("Testing123!") is True
+
+    # testing wrong password
+    assert account.check_password("Wrongpas!") is False
+
 
 # Student 9: Test account deactivation/reactivation
 # - Ensure accounts can be deactivated and reactivated correctly.
