@@ -301,5 +301,5 @@ class TestCounterEndpoints:
 
 def test_reset_when_empty(client):
     """Resetting counters when none exist should still succeed"""
-    result = client.post('/counters/reset')
+    result = client.post("/counters/reset")
     assert result.status_code == 200
