@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 .DS_Store
-=======
 # ides
 .vscode/
 .idea/
@@ -17,4 +15,3 @@ Thumbs.db
 # python
 .venv
 data
->>>>>>> upstream/main

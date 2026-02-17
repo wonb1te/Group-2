@@ -35,3 +35,21 @@ def test_delete_nonexistent_counter(client):
     
     # should return 404 error
     assert result.status_code == status.HTTP_404_NOT_FOUND
+
+def test_reset_counters(client):
+    
+    # create two counters first
+    client.post('/counters/foo')
+    client.post('/counters/bar')
+
+    # reset all counters
+    result = client.post('/counters/reset')
+
+    assert result.status_code == status.HTTP_200_OK
+
+    # verify they are gone
+    result_foo = client.get('/counters/foo')
+    result_bar = client.get('/counters/bar')
+
+    assert result_foo.status_code == status.HTTP_404_NOT_FOUND
+    assert result_bar.status_code == status.HTTP_404_NOT_FOUND
