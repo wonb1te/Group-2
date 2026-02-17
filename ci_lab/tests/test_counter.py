@@ -246,6 +246,8 @@ class TestCounterEndpoints:
         assert response.status_code == HTTPStatus.OK
 
         # TODO: Add an assertion to check that 'a' (value=10) is **excluded**.
+        data = response.get_json()
+        assert "a" not in data
 
     # ===========================
     # Test: Retrieve counters with values less than a threshold
@@ -295,3 +297,9 @@ class TestCounterEndpoints:
 
         assert response.status_code == HTTPStatus.OK
         assert response.get_json() == {"mid": 10, "high": 10}
+
+
+def test_reset_when_empty(client):
+    """Resetting counters when none exist should still succeed"""
+    result = client.post('/counters/reset')
+    assert result.status_code == 200
