@@ -7,6 +7,7 @@ from random import randrange
 import pytest
 from models import db
 from models.account import Account, DataValidationError
+from sqlalchemy.exc import IntegrityError
 
 ACCOUNT_DATA = {}
 
@@ -188,9 +189,23 @@ def test_invalid_email_handling():
     with pytest.raises(DataValidationError):
         account.validate_email()
 
-# Student 3: Test missing required fields
-# - Ensure account initialization fails when required fields are missing.
-# Target Method: Account() initialization
+# ===========================
+# Test: Missing Required Fields
+# Author: Manjot Sandhu
+# Date: 2026-02-14
+# Description: Ensure account initialization fails when required fields are missing.
+# ===========================
+
+def test_missing_required_fields():
+    account = Account()
+    db.session.add(account)
+
+    # Commit should fail because required fields are missing.
+    with pytest.raises(IntegrityError):
+        db.session.commit()
+
+    # Roll back session to restore db
+    db.session.rollback()
 
 # Student 4: Test positive deposit
 # - Verify that depositing a positive amount correctly increases the balance.
@@ -310,7 +325,52 @@ def test_account_deactivation_reactivation():
 # - Ensure duplicate emails are not allowed.
 # Target Method: validate_unique_email()
 
+# ===========================
+# Test: Email Uniqueness Enforcement
+# Author: Nathan Kim
+# Date: 2026-02-16
+# Description: Test email uniqueness enforcement
+# ===========================
+
+def validate_unique_email():
+    """Test that duplicate emails are not allowed"""
+
+    # Create an account with a specific email
+    account1 = Account(name="Bazooka", email="ratemydate@example.com")
+
+    # Try to create another account with the same email
+    with pytest.raises(DataValidationError):
+        account2 = Account(name="Thorkell", email="ratemydate@example.com")
+
+
 # Student 11: Test deleting an account
 # - Verify that an account can be successfully deleted from the database.
 # Target Method: delete()
 # Target Method: delete()
+# Test: Deleting An Account
+# Author: Yahir Escobar
+# Date: 2026-02-16
+# Description: Ensure an account can be deleted from the database
+# ===========================
+
+def test_delete_account():
+
+    # Create a test account
+    account = Account(
+        name="Test User",
+        email="user@example.com"
+    )
+    db.session.add(account)
+    db.session.commit()
+
+    # Verify the account was created
+    assert account.id is not None
+    found = Account.query.get(account.id)
+    assert found is not None
+
+    # Delete the account
+    account.delete()
+
+    # Verify the account was deleted
+    deleted = Account.query.get(account.id)
+    assert deleted is None

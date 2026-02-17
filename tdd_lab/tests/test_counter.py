@@ -29,9 +29,86 @@ class TestCounterEndpoints:
         result = client.post('/counters/foo')
         assert result.status_code == status.HTTP_201_CREATED
 
+    def test_duplicate_counter(self, client):
+        """It should create a counter with a duplicate name"""
+        result1 = client.post('/counters/dup')
+        assert result1.status_code == status.HTTP_201_CREATED
+
+        result2 = client.post('/counters/dup')
+        assert result2.status_code == status.HTTP_409_CONFLICT
+  
+    def test_invalid_http_method(self, client):
+        """It should return 405 Method Not Allowed for invalid HTTP methods"""
+        result = client.get('/counters/foo')  # GET not allowed for this endpoint
+        assert result.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+        assert result.get_json()["error"] == "Method Not Allowed"
+        
+    def test_retrieve_existing_counter(self, client):
+        """It should retrieve an existing counter"""
+        # Create counter
+        client.post('/counters/Rate_MD')
+
+        # Get the counter
+        result = client.get('/counters/Rate_MD')
+        assert result.status_code == status.HTTP_200_OK
+        assert result.json == {'Rate_MD': 0}
+
+    def test_nonexistent_counter(self, client):
+        # Create a counter.
+        client.post("/counters/topsushi")
+
+        # Try to access a different, nonexistent counter, should return 404.
+        self.assert_counter_does_not_exist(client, "gorillasushi")
+
+    def test_delete_counter(self, client):
+        """after a counter has been deleted, it should be non-existant"""
+
+        # Arrange -> create a counter
+        counter_name = "counter"
+        client.post("/counters/" + counter_name)
+
+        # Act -> delete the counter
+        deletion_result = client.delete("/counters/" + counter_name)
+
+        # Assert -> check for 204 code and that counter is no longer extant
+        assert deletion_result.status_code == status.HTTP_204_NO_CONTENT
+        self.assert_counter_does_not_exist(client, counter_name)
+
+    def test_delete_nonexistent_counter(client):
+        # attempt to delete a counter that doesn't exist
+        result = client.delete('/counters/nonexistent')
+
+        # should return 404 error
+        assert result.status_code == status.HTTP_404_NOT_FOUND
+
+
+
+    # helper function - asserts that no counters exist with the given name
+    def assert_counter_does_not_exist(self, client, counter_name):
+        check_existence_result = client.get("/counters/" + counter_name)
+        assert check_existence_result.status_code == status.HTTP_404_NOT_FOUND
+
 def test_delete_nonexistent_counter(client):
     # attempt to delete a counter that doesn't exist
     result = client.delete('/counters/nonexistent')
     
     # should return 404 error
     assert result.status_code == status.HTTP_404_NOT_FOUND
+
+def test_reset_counters(client):
+    
+    # create two counters first
+    client.post('/counters/foo')
+    client.post('/counters/bar')
+
+    # reset all counters
+    result = client.post('/counters/reset')
+
+    assert result.status_code == status.HTTP_200_OK
+
+    # verify they are gone
+    result_foo = client.get('/counters/foo')
+    result_bar = client.get('/counters/bar')
+
+    assert result_foo.status_code == status.HTTP_404_NOT_FOUND
+    assert result_bar.status_code == status.HTTP_404_NOT_FOUND
