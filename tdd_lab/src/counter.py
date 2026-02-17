@@ -37,8 +37,6 @@ def nonexistent_counter(name):
 
 @app.route("/counters/<name>", methods=["DELETE"])
 def delete_counter(name):
-    # i have purposefully not included a check for if the counter already exists
-    # this is because student 8 will need to implement this :)
     if not counter_exists(name):
         return jsonify({"error": f"Counter {name} not found"}), status.HTTP_404_NOT_FOUND
     COUNTERS.pop(name)
