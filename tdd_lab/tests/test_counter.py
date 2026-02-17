@@ -87,3 +87,28 @@ class TestCounterEndpoints:
     def assert_counter_does_not_exist(self, client, counter_name):
         check_existence_result = client.get("/counters/" + counter_name)
         assert check_existence_result.status_code == status.HTTP_404_NOT_FOUND
+
+def test_delete_nonexistent_counter(client):
+    # attempt to delete a counter that doesn't exist
+    result = client.delete('/counters/nonexistent')
+    
+    # should return 404 error
+    assert result.status_code == status.HTTP_404_NOT_FOUND
+
+def test_reset_counters(client):
+    
+    # create two counters first
+    client.post('/counters/foo')
+    client.post('/counters/bar')
+
+    # reset all counters
+    result = client.post('/counters/reset')
+
+    assert result.status_code == status.HTTP_200_OK
+
+    # verify they are gone
+    result_foo = client.get('/counters/foo')
+    result_bar = client.get('/counters/bar')
+
+    assert result_foo.status_code == status.HTTP_404_NOT_FOUND
+    assert result_bar.status_code == status.HTTP_404_NOT_FOUND

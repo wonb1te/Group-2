@@ -61,3 +61,16 @@ def delete_counter(name):
 def http_method_not_allowed(error):
     """Custom handler for invalid HTTP methods"""
     return jsonify({"error": "Method Not Allowed"}), status.HTTP_405_METHOD_NOT_ALLOWED
+    
+@app.route('/counters/<name>', methods=['DELETE'])
+def delete_counter(name):
+    if not counter_exists(name):
+        return jsonify({"error": f"Counter {name} not found"}), status.HTTP_404_NOT_FOUND
+    del COUNTERS[name]
+    return jsonify({}), status.HTTP_200_OK
+
+@app.route('/counters/reset', methods=['POST'])
+def reset_counters():
+    """Reset all counters"""
+    COUNTERS.clear()
+    return jsonify({}), status.HTTP_200_OK
