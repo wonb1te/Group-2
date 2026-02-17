@@ -103,7 +103,6 @@ Each test should include:
 
 # Test Assignments
 
-
 # ===========================
 # Test: Account Serialization
 # Author: Daniel Mamuza
@@ -140,15 +139,48 @@ def test_account_serialization():
         "role": "user",
     }
 
+# ===========================
+# Test: Invalid Email Handling
+# Author: Hristiyan Melios
+# Date: 2026-02-16
+# Description: - Ensure invalid emails raise a DataValidationError.
+# Ensure accounts without an email cannot be created.
+# ===========================
+def test_invalid_email_handling():
 
-# Student 2: Test invalid email input
-# - Ensure invalid email formats raise a validation error.
-# Target Method: validate_email()
+    # Attempt to assign no email.
+    account = Account(role="user")
+    with pytest.raises(TypeError): # match() can't accept None type.
+        account.validate_email()
+
+    # Attempt invalid email: No '@' symbol.
+    account = Account(role="user", email="not-an-email")
+    with pytest.raises(DataValidationError):
+        account.validate_email()
+
+    # Attempt invalid email: No '.' symbol after '@'.
+    account = Account(role="user", email="not-an-email@gmail")
+    with pytest.raises(DataValidationError):
+        account.validate_email()
+
+    # Attempt invalid email: No text after '.'
+    account = Account(role="user", email="not-an-email@gmail.")
+    with pytest.raises(DataValidationError):
+        account.validate_email()
+
+    # Attempt invalid email: No text before after '@'.
+    account = Account(role="user", email="@gmail.com")
+    with pytest.raises(DataValidationError):
+        account.validate_email()
+
+    # Attempt invalid email: Special characters.
+    account = Account(role="user", email="gorilla-sushi@gmail.com!")
+    with pytest.raises(DataValidationError):
+        account.validate_email()
 
 # Student 3: Test missing required fields
 # - Ensure account initialization fails when required fields are missing.
 # Target Method: Account() initialization
-
 
 # ===========================
 # Test: Test Positive Deposit
@@ -157,9 +189,8 @@ def test_account_serialization():
 # Description: Verify that depositing a positive amount correctly increases the balance.
 # ===========================
 def test_positive_deposit():
-    account = Account(
-        name="Gorilla Sushi", email="gorillasushi@gmail.com", role="user", balance=0
-    )
+
+    account = Account(name="Gorilla Sushi", email="gorillasushi@gmail.com", role="user", balance = 0)
 
     # Depositing small positive integer increases balance accordingly.
     account.deposit(1)
@@ -186,7 +217,6 @@ def test_positive_deposit():
 # - Verify that withdrawing a valid amount correctly decreases the balance.
 # Target Method: withdraw()
 
-
 # ===========================
 # Test: Test Withdrawl With Insufficient Funds
 # Author: Jonah Lewis
@@ -199,7 +229,6 @@ def test_withdrawl_insufficient_funds():
     account = Account(balance=0)
     with pytest.raises(DataValidationError):
         account.withdraw(1)
-
 
 # Student 8: Test password hashing
 # - Ensure passwords are properly hashed.
@@ -217,4 +246,3 @@ def test_withdrawl_insufficient_funds():
 # Student 11: Test deleting an account
 # - Verify that an account can be successfully deleted from the database.
 # Target Method: delete()
-
